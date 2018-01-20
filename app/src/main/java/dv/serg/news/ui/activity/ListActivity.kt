@@ -1,4 +1,4 @@
-package dv.serg.news
+package dv.serg.news.ui.activity
 
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import dv.serg.news.R
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.app_bar_list.*
 
