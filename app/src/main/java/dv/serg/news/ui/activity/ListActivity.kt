@@ -9,15 +9,23 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import dv.serg.news.R
+import dv.serg.news.ui.fragment.FragmentFactory
+import dv.serg.news.ui.fragment.NewsListFragment
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.app_bar_list.*
 
 class ListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+
+    enum class FragmentSelector(val tag: String) {
+        DEFAULT("default")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
         setSupportActionBar(toolbar)
+
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -30,6 +38,8 @@ class ListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+        FragmentFactory.startFragment(this, NewsListFragment())
     }
 
     override fun onBackPressed() {
