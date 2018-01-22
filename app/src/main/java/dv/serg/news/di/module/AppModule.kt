@@ -10,4 +10,6 @@ class AppModule(private val appContext: Application) {
     @PerApplication
     @Provides
     fun provideApplication() = appContext
+
+
 }

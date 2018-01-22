@@ -9,4 +9,5 @@ import dv.serg.news.di.module.AppModule
 @Component(modules = [AppModule::class])
 interface AppComponent {
     fun application(): Application
+//    fun apiKey(): String
 }

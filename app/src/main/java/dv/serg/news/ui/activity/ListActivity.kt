@@ -9,8 +9,8 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import dv.serg.news.R
-import dv.serg.news.ui.fragment.FragmentFactory
-import dv.serg.news.ui.fragment.NewsListFragment
+import dv.serg.news.ui.fragment.NewsFragment
+import dv.serg.news.util.startFragment
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.app_bar_list.*
 
@@ -39,7 +39,7 @@ class ListActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        FragmentFactory.startFragment(this, NewsListFragment())
+        startFragment(::NewsFragment, R.id.fragmentHolder)
     }
 
     override fun onBackPressed() {

@@ -1,12 +1,11 @@
 package dv.serg.news.ui.fragment
 
-import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,45 +15,51 @@ import dv.serg.news.recycler.StandardAdapter
 import dv.serg.news.ui.abstr.MvpView
 import dv.serg.news.ui.presenter.NewsPresenter
 import dv.serg.news.ui.viewholder.ArticleHolder
-import dv.serg.news.util.Injectable
-import dv.serg.news.util.TAG
-import javax.inject.Inject
+import dv.serg.news.util.InjectablePresenter
 
 
-class NewsListFragment : LiveFragment(), MvpView<Article>, Injectable, SwipeRefreshLayout.OnRefreshListener {
+class NewsFragment : StandardFragment<NewsPresenter>(), MvpView<Article>, InjectablePresenter, SwipeRefreshLayout.OnRefreshListener {
 
-
-    private var parentContext: Context? = null
     private var adapter: StandardAdapter<Article, ArticleHolder>? = null
-    private var recyclerView: RecyclerView? = null
-    @Inject
-    lateinit var presenter: NewsPresenter
-    private var currentPage: Int = 1
-    private var swipeRefresh: SwipeRefreshLayout? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        inject(this)
-        Log.d(tag, "NewsListFragment:onCreate")
-    }
+    private var recyclerView: RecyclerView? = null
+
+    private var swipeRefresh: SwipeRefreshLayout? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        Log.d(TAG, "savedInstanceState:$savedInstanceState")
         return inflater!!.inflate(R.layout.fragment_list, container, false)
     }
 
-    override fun onViewCreated(rootView: View?, savedInstanceState: Bundle?) {
-        super.onViewCreated(rootView, savedInstanceState)
-        recyclerView = rootView!!.findViewById(R.id.recyclerView)
-        adapter = StandardAdapter(R.layout.news_item, { view -> ArticleHolder(view) })
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        recyclerView = view.findViewById(R.id.recyclerView)
+        adapter = StandardAdapter(R.layout.news_item, { view0 -> ArticleHolder(view0) })
         recyclerView!!.adapter = adapter
         recyclerView!!.layoutManager = LinearLayoutManager(parentContext, LinearLayoutManager.VERTICAL, false)
 
         val swipeRefresh = (parentContext as AppCompatActivity).findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
         swipeRefresh.setOnRefreshListener(this)
 
-        presenter.loadData(currentPage++)
+        // todo page
+
+        presenter.loadData(1)
+
+
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        initUI()
+    }
+
+    private fun initUI() {
+        val fab = activity.findViewById<FloatingActionButton>(R.id.fab)
+
+        fab.setOnClickListener {
+            // todo fab
+        }
     }
 
     override fun onStartLoading() {
@@ -72,29 +77,7 @@ class NewsListFragment : LiveFragment(), MvpView<Article>, Injectable, SwipeRefr
         swipeRefresh?.isRefreshing = false
     }
 
-
-    override fun onAttach(context: Context?) {
-        // todo make coordinator layout: https://stackoverflow.com/questions/30739806/coordinator-layout-with-toolbar-in-fragments-or-activity
-        super.onAttach(context)
-        parentContext = context
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        parentContext = null
-    }
-
     override fun onRefresh() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    companion object {
-        fun newInstance(bundle: Bundle? = null): NewsListFragment {
-            val fragment = NewsListFragment()
-            if (bundle != null) {
-                fragment.arguments = bundle
-            }
-            return fragment
-        }
     }
 }
