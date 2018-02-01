@@ -2,11 +2,9 @@ package dv.serg.news.di.module
 
 import android.app.Application
 import android.content.pm.PackageManager
-import android.util.Log
 import dagger.Module
 import dagger.Provides
-import dv.serg.news.di.PerFragment
-import dv.serg.news.util.TAG
+import dv.serg.news.di.PerApplication
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -18,13 +16,12 @@ import javax.inject.Named
 class RetrofitModule {
 
     companion object {
-        private const val AUTH_KEY = "a1f8deb5e535412cbd4f401b32725855"
         private const val BASE_URL = "https://newsapi.org/v2/"
         private const val HEADER_AUTH = "X-Api-Key"
         private const val CACHE_SIZE: Long = 10 * 1024 * 1024
     }
 
-    @PerFragment
+    @PerApplication
     @Provides
     @Named("apiKey")
     fun provideApiKey(appContext: Application): String {
@@ -33,18 +30,17 @@ class RetrofitModule {
             val bundle = applicationInfo.metaData
             return bundle["apiKey"] as String
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.e(TAG, "Failed to load meta-data, NameNotFound")
             throw PackageManager.NameNotFoundException("Failed to load meta-data, NameNotFound: ${e.message}")
         } catch (e: NullPointerException) {
             throw NullPointerException("Failed to load meta-data, NullPointer: ${e.message}")
         }
     }
 
-    @PerFragment
+    @PerApplication
     @Provides
     fun provideCache(appContext: Application): Cache = Cache(appContext.cacheDir, CACHE_SIZE)
 
-    @PerFragment
+    @PerApplication
     @Provides
     fun provideHttpClient(cache: Cache, @Named("apiKey") apiKey: String): OkHttpClient {
         return OkHttpClient.Builder()
@@ -58,7 +54,7 @@ class RetrofitModule {
                 .build()
     }
 
-    @PerFragment
+    @PerApplication
     @Provides
     fun provideRetrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()

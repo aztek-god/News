@@ -1,9 +1,8 @@
 package dv.serg.news.model.rest.abstr
 
-import dv.serg.news.model.abstr.ReadDao
 import io.reactivex.Observable
 
-interface NewsDao<K, V> : ReadDao<K, V> {
+interface NewsDao<K : Comparable<K>, V> {
 
     var query: String
     var pageSize: Int
@@ -19,6 +18,5 @@ interface NewsDao<K, V> : ReadDao<K, V> {
 
     companion object {
         const val DEF_PAGE_SIZE = 20
-
     }
 }

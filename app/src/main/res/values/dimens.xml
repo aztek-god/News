@@ -5,5 +5,7 @@
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="standard_card_view_margin">4dp</dimen>
+    <dimen name="standard_card_view_side_margin">4dp</dimen>
+    <dimen name="card_view_top">4dp</dimen>
+    <dimen name="card_view_bottom">4dp</dimen>
 </resources>
