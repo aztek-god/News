@@ -8,4 +8,8 @@
     <dimen name="standard_card_view_side_margin">4dp</dimen>
     <dimen name="card_view_top">4dp</dimen>
     <dimen name="card_view_bottom">4dp</dimen>
+    <dimen name="card_view_bottom_margin">4dp</dimen>
+    <dimen name="card_view_top_margin">4dp</dimen>
+    <dimen name="card_view_right_margin">8dp</dimen>
+    <dimen name="card_view_left_margin">8dp</dimen>
 </resources>

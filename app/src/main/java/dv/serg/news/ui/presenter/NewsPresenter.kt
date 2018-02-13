@@ -4,16 +4,18 @@ import android.util.Log
 import dv.serg.lib.dao.Dao
 import dv.serg.news.model.dao.room.entity.Bookmark
 import dv.serg.news.model.dao.room.entity.History
+import dv.serg.news.model.dao.room.entity.Source
 import dv.serg.news.model.rest.pojo.Article
 import dv.serg.news.model.rest.pojo.Response
 import dv.serg.news.ui.abstr.MvpView
 import dv.serg.news.util.convertToBookmark
 import dv.serg.news.util.convertToHistory
-import io.reactivex.Flowable
+import dv.serg.news.util.isInternetActive
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -22,21 +24,13 @@ import java.util.concurrent.TimeUnit
 // todo implement attach detach
 class NewsPresenter(private val view: MvpView<Article>,
                     private val retrofit: Retrofit,
-                    private val sourceDao: Flowable<List<String>>,
+                    private val sourceDao: Dao<Source>,
                     private val historyDao: Dao<History>,
                     private val bookmarkDao: Dao<Bookmark>,
                     val filterList: MutableList<String>) {
 
 
-//    init {
-//        if (liveData.articles == null) {
-//            Log.d("sergdv", "liveData.articles")
-//            liveData.articles = ArrayList()
-//        }
-//    }
-//
-//    fun retainArticles(): List<Article> = liveData.articles ?: emptyList()
-
+    class NoInternetException(message: String) : Exception(message)
 
     companion object {
         val TAG = "NewsPresenter"
@@ -84,7 +78,7 @@ class NewsPresenter(private val view: MvpView<Article>,
 
     fun loadDataFromLentaOnly() {
         view.onStartLoading()
-        retrofit.create(News::class.java).loadPopularNews(searchQuery, "lenta", currentPage++)
+        retrofit.create(News::class.java).loadPopularNews(searchQuery, "lenta_thumb", currentPage++)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())
@@ -107,21 +101,34 @@ class NewsPresenter(private val view: MvpView<Article>,
 
     fun loadNewsFromSources() {
         view.onStartLoading()
-        sourceDao.observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
-                .subscribe { it: List<String> ->
-                    val sources: String = it.joinToString(separator = ",")
-                    // todo replace with page var
-                    retrofit.create(News::class.java).loadPopularNews(searchQuery, sources, currentPage++)
+        if (isInternetActive) {
+            doAsync {
+                val sources = sourceDao.getAll()
+                val sourcesString: String
+
+                sourcesString = if (sources.isEmpty()) {
+                    "lenta"
+                } else {
+                    sources.joinToString(separator = ",", transform = { it: Source ->
+                        it.sourceCode
+                    })
+                }
+                uiThread {
+                    retrofit.create(News::class.java).loadPopularNews(searchQuery, sourcesString, currentPage++)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribeOn(Schedulers.io())
                             .unsubscribeOn(Schedulers.io())
-                            .map { response: Response -> response.articles ?: emptyList() }
-                            .subscribe(
-                                    { view.show(it) }, { view.showError(it) }, { view.onFinishLoading() }
-                            )
+                            .flatMap {
+                                Observable.just(it.articles)
+                            }.subscribe({ articles: List<Article> -> view.show(articles) },
+                                    { view.showError(it) },
+                                    { view.onFinishLoading() })
                 }
+            }
+        } else {
+            Log.d("sergdv:loadNewsFromSo", "loadNewsFromSources")
+            view.showError(NoInternetException("There is no active internet connections."))
+        }
     }
 }
 

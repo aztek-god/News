@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Лента.ру</string>
+
+    <string name="navigation_drawer_open">Открыть панель</string>
+    <string name="navigation_drawer_close">Закрыть панель</string>
+
+    <string name="action_settings">Настройки</string>
+
+    <string name="title">Заголовок</string>
+    <string name="description">Описание</string>
+    <string name="url">Url</string>
+    <string name="publishedAt">Дата публикации</string>
+    <string name="from">От</string>
+    <string name="unknown">Неизвестный</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="subscribe">Подписатья</string>
+    <string name="submit">Подтвердить</string>
+    <string name="browser_chooser">Закрыть браузер</string>
+    <string name="search_placeholder">Поиск...</string>
+    <string name="add_bookmark">Добавить закладку</string>
+    <string name="add_to_filter">Добавить в фильтер</string>
+    <string name="copy_url">Скопировать ссылку</string>
+    <string name="history">История</string>
+    <string name="bookmark">Закладки</string>
+    <string name="news">Новости</string>
+    <string name="delete_item">Удалено</string>
+    <string name="delete_action_name">Удалено</string>
+    <string name="all_remove_items">Все удалено</string>
+    <string name="there_is_no_any_data_to_show">Нет данных</string>
+    <string name="source">Источник</string>
+    <string name="secret">Секрет</string>
+
+    <string-array name="months">
+        <item>Января</item>
+        <item>Февраля</item>
+        <item>Марта</item>
+        <item>Апреля</item>
+        <item>Мая</item>
+        <item>Июня</item>
+        <item>Июля</item>
+        <item>Августа</item>
+        <item>Сентября</item>
+        <item>Октября</item>
+        <item>Ноября</item>
+        <item>Декабря</item>
+    </string-array>
+</resources>

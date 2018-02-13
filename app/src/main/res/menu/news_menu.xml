@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/history_view"
+            android:icon="@drawable/ic_history_black_24dp"
+            android:title="@string/history" />
+        <item
+            android:id="@+id/bookmark_view"
+            android:icon="@drawable/bookmark"
+            android:title="@string/bookmark" />
+
+        <item
+            android:id="@+id/source_view"
+            android:icon="@drawable/arrow_down_bold_box_outline"
+            android:title="@string/source" />
+        <item
+            android:id="@+id/nav_send"
+            android:icon="@drawable/account_alert"
+            android:title="@string/secret" />
+    </group>
+</menu>

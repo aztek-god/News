@@ -1,15 +1,11 @@
 package dv.serg.lib.dao
 
-import io.reactivex.Flowable
-
 interface Dao<V> {
-
-    // read operations
     fun get(id: Long): V {
         throw Exception("This operation is not supported.")
     }
 
-    fun getAll(): Flowable<List<V>> {
+    fun getAll(): List<V> {
         throw Exception("This operation is not supported.")
     }
 

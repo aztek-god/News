@@ -10,6 +10,8 @@ import com.bumptech.glide.Glide
 import dv.serg.lib.adapter.StandardAdapter
 import dv.serg.news.R
 import dv.serg.news.model.rest.pojo.Article
+import dv.serg.news.util.convertDatetimeFromString
+import dv.serg.news.util.convertDatetimeToHandyString
 
 class NewsHolder(private val view: View, private val clickListener: StandardAdapter.OnClickListener<Article>)
     : RecyclerView.ViewHolder(view), StandardAdapter.BindViewHolder<Article, NewsHolder>, StandardAdapter.OnClickListener<Article> {
@@ -70,7 +72,14 @@ class NewsHolder(private val view: View, private val clickListener: StandardAdap
         }
 
         description.text = item.description
-        publishedAt.text = item.publishedAt
+//        convertDatetimeToHandyString
+
+
+//        publishedAt.text = item.publishedAt
+
+        publishedAt.text = convertDatetimeToHandyString(convertDatetimeFromString(item.publishedAt
+                ?: ""))
+
         title.text = item.title
         sourceName.text = item.source?.name
         Glide.with(view.context).load(item.urlToImage).into(previewImage)

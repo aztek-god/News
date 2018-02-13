@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">News</string>
+    <string name="app_name">Lenta.ru</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -22,4 +22,28 @@
     <string name="add_bookmark">Add bookmark</string>
     <string name="add_to_filter">Add to filter</string>
     <string name="copy_url">Copy url</string>
+    <string name="history">History</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="news">News</string>
+    <string name="delete_item">Item deleted</string>
+    <string name="delete_action_name">Item deleted</string>
+    <string name="all_remove_items">All items removed</string>
+    <string name="there_is_no_any_data_to_show">There is no any data to show</string>
+    <string name="source">Source</string>
+    <string name="secret">Secret</string>
+
+    <string-array name="months">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
 </resources>

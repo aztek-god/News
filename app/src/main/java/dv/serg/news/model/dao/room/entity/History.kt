@@ -8,17 +8,17 @@ import dv.serg.news.util.getCurrentTimestamp
 @Entity(tableName = "history")
 data class History(
         @PrimaryKey(autoGenerate = true)
-        val id: Long,
+        override val id: Long,
         @ColumnInfo(name = "source_from")
-        val sourceName: String,
+        override val sourceName: String,
         @ColumnInfo(name = "header")
-        val title: String,
+        override val title: String,
         @ColumnInfo(name = "short_desc")
-        val shortDesc: String,
+        override val shortDesc: String,
         @ColumnInfo(name = "url")
-        val url: String,
+        override val url: String,
         @ColumnInfo(name = "published_at")
-        val publishedAt: Long,
+        override val publishedAt: Long,
         @ColumnInfo(name = "visited_at")
-        val visitedAt: Long = getCurrentTimestamp()
-)
+        override val addedAt: Long = getCurrentTimestamp()
+) : Record

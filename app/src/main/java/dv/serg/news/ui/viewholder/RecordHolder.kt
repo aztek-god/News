@@ -6,9 +6,10 @@ import android.widget.TextView
 import dv.serg.lib.adapter.StandardAdapter
 import dv.serg.news.R
 import dv.serg.news.model.dao.room.entity.History
+import dv.serg.news.model.dao.room.entity.Record
 import dv.serg.news.util.convertTimestamp
 
-class HistoryHolder(view: View) : RecyclerView.ViewHolder(view), StandardAdapter.BindViewHolder<History, HistoryHolder>, StandardAdapter.OnClickListener<History> {
+class RecordHolder(view: View) : RecyclerView.ViewHolder(view), StandardAdapter.BindViewHolder<Record, RecordHolder>, StandardAdapter.OnClickListener<History> {
 
     private val root: View = view.findViewById(R.id.historyRoot)
     private val description: TextView = view.findViewById(R.id.description)
@@ -18,7 +19,7 @@ class HistoryHolder(view: View) : RecyclerView.ViewHolder(view), StandardAdapter
     private val publishLabel: TextView = view.findViewById(R.id.publishLabel)
 
 
-    override fun onBind(position: Int, item: History) {
+    override fun onBind(position: Int, item: Record) {
         description.text = item.shortDesc
         header.text = item.title
         sourceName.text = item.sourceName

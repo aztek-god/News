@@ -14,12 +14,20 @@
         android:layout_height="match_parent">
 
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
-        </android.support.v7.widget.RecyclerView>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <include
+                android:id="@+id/there_is_nothing_to_show"
+                layout="@layout/empty_window" />
+
+        </FrameLayout>
 
 
     </android.support.v4.widget.SwipeRefreshLayout>

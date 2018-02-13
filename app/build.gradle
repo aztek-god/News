@@ -12,8 +12,8 @@ android {
         applicationId "dv.serg.news"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -21,6 +21,23 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            debuggable true
+            applicationIdSuffix ".debug"
+        }
+    }
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    flavorDimensions "tier"
+
+    productFlavors {
+        develop {
+            dimension "tier"
+            minSdkVersion 21
         }
     }
 }

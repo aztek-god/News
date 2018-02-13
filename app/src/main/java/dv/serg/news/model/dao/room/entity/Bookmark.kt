@@ -9,17 +9,17 @@ import dv.serg.news.util.getCurrentTimestamp
 @Entity(tableName = "bookmark")
 data class Bookmark(
         @PrimaryKey(autoGenerate = true)
-        val id: Long,
+        override val id: Long,
         @ColumnInfo(name = "source_from")
-        val sourceName: String,
+        override val sourceName: String,
         @ColumnInfo(name = "header")
-        val title: String,
+        override val title: String,
         @ColumnInfo(name = "short_desc")
-        val shortDesc: String,
+        override val shortDesc: String,
         @ColumnInfo(name = "url")
-        val url: String,
+        override val url: String,
         @ColumnInfo(name = "published_at")
-        val publishedAt: Long,
+        override val publishedAt: Long,
         @ColumnInfo(name = "added_at")
-        val addedAt: Long = getCurrentTimestamp()
-)
+        override val addedAt: Long = getCurrentTimestamp()
+) : Record

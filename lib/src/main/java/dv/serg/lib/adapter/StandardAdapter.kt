@@ -4,18 +4,17 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import dv.serg.lib.collection.ObservableArrayList
 import dv.serg.lib.collection.ObservableList
 
 open class StandardAdapter<T, VH>(private val layoutId: Int, private val initView: (View) -> VH,
-                                  private val data: ObservableList<T> = ObservableList()) :
-        DiffUtilAdapter<T, VH>(), MutableList<T> by data, ObservableList.ChangesObserver<T>
+                                  private val data: ObservableArrayList<T> = ObservableArrayList()) :
+        DiffUtilAdapter<T, VH>(), ObservableList<T> by data, ObservableList.ListObserver<T>
         where VH : RecyclerView.ViewHolder, VH : StandardAdapter.BindViewHolder<T, VH> {
 
     init {
-        data.registerObserver(this)
+        data.addObserver(this)
     }
-
-    var onClickListener: OnClickListener<T> = object : OnClickListener<T> {}
 
     interface OnClickListener<T> {
         fun onClick(data: T, position: Int) {}
@@ -26,7 +25,6 @@ open class StandardAdapter<T, VH>(private val layoutId: Int, private val initVie
         fun onBind(position: Int, item: T)
     }
 
-    // todo fix observeChanges
     override fun observeChanges(oldData: List<T>, newData: List<T>) {
         calculateDiff(oldData, newData)
     }

@@ -34,12 +34,5 @@ abstract class DiffUtilAdapter<T, VH : RecyclerView.ViewHolder> : RecyclerView.A
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return this@DiffUtilAdapter.areContentsTheSame(oldList[oldItemPosition], newList[newItemPosition])
         }
-
-//        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-//            return this@DiffUtilAdapter.getChangePayload(super.getChangePayload(oldItemPosition, newItemPosition),
-//                    oldItemPosition, newItemPosition)
-//        }
     }
-
-
 }

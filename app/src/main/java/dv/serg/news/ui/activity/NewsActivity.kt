@@ -5,16 +5,23 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.NavigationView
+import android.support.v4.content.ContextCompat
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import com.arlib.floatingsearchview.FloatingSearchView
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion
 import dv.serg.lib.adapter.StandardAdapter
+import dv.serg.lib.collection.ObservableList
 import dv.serg.news.R
+import dv.serg.news.RecordType
 import dv.serg.news.model.rest.pojo.Article
 import dv.serg.news.ui.abstr.ListActivity
 import dv.serg.news.ui.abstr.MvpView
@@ -22,15 +29,27 @@ import dv.serg.news.ui.presenter.NewsPresenter
 import dv.serg.news.ui.viewholder.NewsHolder
 import dv.serg.news.util.PaginationScrollListener
 import dv.serg.news.util.SwipeManager
+import dv.serg.news.util.showSimpleDialog
 import dv.serg.news.util.startBrowser
 import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.app_bar_list.*
 import kotlinx.android.synthetic.main.content_list.*
+import kotlinx.android.synthetic.main.empty_window.*
 import kotlinx.android.synthetic.main.search_toolbar.*
 import javax.inject.Inject
 
 
-class NewsActivity : ListActivity(), MvpView<Article> {
+class NewsActivity : ListActivity(), MvpView<Article>, ObservableList.ListObserver<Article> {
+
+    override fun observeChanges(oldData: List<Article>, newData: List<Article>) {
+        if (newData.isNotEmpty()) {
+            recyclerView.visibility = View.VISIBLE
+            nothing_to_show.visibility = View.GONE
+        } else {
+            recyclerView.visibility = View.GONE
+            nothing_to_show.visibility = View.VISIBLE
+        }
+    }
 
 
     @Inject
@@ -43,7 +62,7 @@ class NewsActivity : ListActivity(), MvpView<Article> {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_list) //todo
+        setContentView(R.layout.activity_list)
 
         liveData = ViewModelProviders.of(this).get(AdapterLiveData::class.java)
 
@@ -53,6 +72,7 @@ class NewsActivity : ListActivity(), MvpView<Article> {
         setSupportActionBar(searchToolbar)
         searchToolbar.visibility = View.VISIBLE
 
+        val drawer_layout = findViewById<DrawerLayout>(R.id.drawer_layout)
         searchToolbarView.attachNavigationDrawerToMenuButton(drawer_layout)
 
         SwipeManager(ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT),
@@ -79,14 +99,17 @@ class NewsActivity : ListActivity(), MvpView<Article> {
         swipeRefresh.setOnRefreshListener {
             adapter.clear()
             presenter.currentPage = 1
-            presenter.loadDataFromLentaOnly()
+            presenter.loadNewsFromSources()
+            presenter.loadNewsFromSources()
         }
+
+        fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_autorenew_24dp))
 
         fab.setOnClickListener {
             presenter.searchQuery = ""
             searchToolbarView.setSearchText("")
             adapter.clear()
-            presenter.loadDataFromLentaOnly()
+            presenter.loadNewsFromSources()
         }
 
         adapter = StandardAdapter(R.layout.news_item, { view ->
@@ -98,7 +121,6 @@ class NewsActivity : ListActivity(), MvpView<Article> {
             }).also {
                 it.popupListener = object : NewsHolder.NewsPopupListener {
                     override fun onAddToBookmark(item: Article) {
-                        Log.d("sergdv", "onAddToBookmark:item = $item")
                         presenter.saveAsBookmark(item)
                     }
 
@@ -113,7 +135,9 @@ class NewsActivity : ListActivity(), MvpView<Article> {
                     }
                 }
             }
-        })
+        }).also { it: StandardAdapter<Article, NewsHolder> ->
+            it.addObserver(this)
+        }
 
         recyclerView.adapter = adapter
         val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -121,7 +145,7 @@ class NewsActivity : ListActivity(), MvpView<Article> {
 
         recyclerView.addOnScrollListener(object : PaginationScrollListener(linearLayoutManager) {
             override fun loadMoreItems() {
-                presenter.loadDataFromLentaOnly()
+                presenter.loadNewsFromSources()
             }
 
             override fun getTotalPageCount(): Int = TOTAL_PAGE_COUNT
@@ -136,7 +160,7 @@ class NewsActivity : ListActivity(), MvpView<Article> {
                 if (currentQuery?.isNotEmpty() == true) {
                     adapter.clear()
                     presenter.searchQuery = currentQuery
-                    presenter.loadDataFromLentaOnly()
+                    presenter.loadNewsFromSources()
                 }
             }
 
@@ -145,9 +169,13 @@ class NewsActivity : ListActivity(), MvpView<Article> {
 
         })
 
+        val navView = findViewById<NavigationView>(R.id.nav_view)
+        navView.inflateMenu(R.menu.news_menu)
+
+        nav_view.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {
-            presenter.loadDataFromLentaOnly()
+            presenter.loadNewsFromSources()
         }
     }
 
@@ -165,7 +193,6 @@ class NewsActivity : ListActivity(), MvpView<Article> {
         adapter.addAll(liveData.articles ?: emptyList())
         presenter.searchQuery = liveData.currentSearchQuery
         presenter.currentPage = liveData.currentPage
-        Log.d("sergdv", "onRestoreInstanceState adapter size = ${adapter.size}")
     }
 
     override fun onStartLoading() {
@@ -178,7 +205,10 @@ class NewsActivity : ListActivity(), MvpView<Article> {
     }
 
     override fun showError(message: Throwable) {
-        // todo
+        if (message is NewsPresenter.NoInternetException) {
+            onFinishLoading()
+            showSimpleDialog(this, "Internet connection error", "There is no available internet connections")
+        }
     }
 
     override fun onFinishLoading() {
@@ -187,7 +217,42 @@ class NewsActivity : ListActivity(), MvpView<Article> {
 
     }
 
-    private class AdapterLiveData : ViewModel() {
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
+        val drawer_layout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        drawer_layout.closeDrawers()
+        when (item.itemId) {
+            R.id.history_view -> {
+                val intent: Intent = Intent(this, RecordActivity::class.java)
+                intent.putExtra(RecordType.RECORD, RecordType.HISTORY)
+
+                startActivity(intent)
+            }
+            R.id.bookmark_view -> {
+                val intent: Intent = Intent(this, RecordActivity::class.java)
+                intent.putExtra(RecordType.RECORD, RecordType.BOOKMARKS)
+
+                startActivity(intent)
+            }
+            R.id.source_view -> {
+
+                val intent: Intent = Intent(this, SourceActivity::class.java)
+
+                startActivity(intent)
+
+            }
+            R.id.nav_send -> {
+                val intent: Intent = Intent(this, SecretActivity::class.java)
+
+                startActivity(intent)
+
+            }
+        }
+
+        return true
+    }
+
+    class AdapterLiveData : ViewModel() {
         var currentSearchQuery: String = ""
         var currentPage: Int = 1
         var articles: MutableList<Article>? = null

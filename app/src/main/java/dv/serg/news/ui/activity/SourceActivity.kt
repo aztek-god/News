@@ -1,31 +1,51 @@
 package dv.serg.news.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.view.ActionMode
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import dv.serg.lib.adapter.StandardAdapter
+import dv.serg.lib.collection.ObservableList
 import dv.serg.news.R
 import dv.serg.news.model.dao.room.entity.Source
 import dv.serg.news.ui.abstr.ListActivity
 import dv.serg.news.ui.presenter.SourcePresenter
 import dv.serg.news.ui.viewholder.SourceHolder
-import kotlinx.android.synthetic.main.fragment_list.*
+import dv.serg.news.util.clearSelected
+import kotlinx.android.synthetic.main.content_list.*
+import kotlinx.android.synthetic.main.empty_window.*
 import kotlinx.android.synthetic.main.ordinal_toolbar.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import javax.inject.Inject
 
-class SourceActivity : ListActivity(), ActionMode.Callback {
+class SourceActivity : ListActivity(), ActionMode.Callback, ObservableList.ListObserver<Source> {
+    override fun observeChanges(oldData: List<Source>, newData: List<Source>) {
+        if (newData.isNotEmpty()) {
+            recyclerView.visibility = View.VISIBLE
+            nothing_to_show.visibility = View.GONE
+        } else {
+            recyclerView.visibility = View.GONE
+            nothing_to_show.visibility = View.VISIBLE
+        }
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        return false
+    }
 
     companion object {
         val TAG = "sergdv"
     }
 
-    // todo implement screen orientation surviving
-    // todo
+
 
     private lateinit var adapter: StandardAdapter<Source, SourceHolder>
     private var actionMode: ActionMode? = null
@@ -37,6 +57,15 @@ class SourceActivity : ListActivity(), ActionMode.Callback {
         super.onCreate(savedInstanceState)
 
         setSupportActionBar(toolbar)
+
+        supportActionBar?.title = getString(R.string.source)
+
+        swipeRefresh.isEnabled = false
+        swipeRefresh.isRefreshing = false
+
+        findViewById<DrawerLayout>(R.id.drawer_layout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        findViewById<FloatingActionButton>(R.id.fab).visibility = View.GONE
+
         toolbar.visibility = View.VISIBLE
 
         adapter = StandardAdapter(R.layout.source_item,
@@ -45,7 +74,9 @@ class SourceActivity : ListActivity(), ActionMode.Callback {
                         val isAtLeastOne = adapter.any { it.isSubscribed == true }
                         handleActionMode(isAtLeastOne)
                     }
-                })
+                }).also {
+            it.addObserver(this)
+        }
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -78,13 +109,17 @@ class SourceActivity : ListActivity(), ActionMode.Callback {
                         adapter.clearSelected()
                         actionMode?.finish()
 
-                        // todo start activity here
+                        startNewsActivity()
                     }
                 }
             }
         }
 
         return true
+    }
+
+    override fun onBackPressed() {
+        startActivity(Intent(this, NewsActivity::class.java))
     }
 
     override fun onCreateActionMode(p0: ActionMode?, p1: Menu?): Boolean {
@@ -101,9 +136,11 @@ class SourceActivity : ListActivity(), ActionMode.Callback {
         adapter.clearSelected()
         actionMode = null
     }
+
+    private fun startNewsActivity() {
+        val intent = Intent(this, NewsActivity::class.java)
+        startActivity(intent)
+    }
 }
 
-fun StandardAdapter<Source, SourceHolder>.clearSelected() {
-    forEach { it.isSubscribed = false }
-    notifyDataSetChanged()
-}
+

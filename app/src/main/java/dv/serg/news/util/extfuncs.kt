@@ -1,21 +1,32 @@
 package dv.serg.news.util
 
 import android.app.Activity
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.net.Uri
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.Toast
+import dv.serg.lib.adapter.StandardAdapter
+import dv.serg.news.AppContext
 import dv.serg.news.AppContext.Companion.TimePattern.Companion.PRETTY
+import dv.serg.news.AppContext.Companion.context
 import dv.serg.news.R
 import dv.serg.news.model.dao.room.entity.Bookmark
 import dv.serg.news.model.dao.room.entity.History
+import dv.serg.news.model.dao.room.entity.Source
 import dv.serg.news.model.rest.pojo.Article
+import dv.serg.news.ui.viewholder.SourceHolder
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.reflect.KFunction0
+
 
 const val DEFAULT_DATETIME_PATTERN = "yyyy'-'MM'-'dd'T'HH':'mm':'ss"
 const val TAG = "extfuncs"
@@ -55,6 +66,20 @@ fun convertDatetimeFromString(datetimeString: String, pattern: String = DEFAULT_
     val sdf = SimpleDateFormat(pattern, Locale.ENGLISH)
     val date: Date = sdf.parse(datetimeString)
     return date.time
+}
+
+fun convertDatetimeToHandyString(datetime: Long): String {
+    val sdf = SimpleDateFormat("HH:mm, d __ yyyy")
+    val date = Date(datetime)
+    val monthNumber = date.month
+    return sdf.format(date).replace("__", DateMonthName.getName(monthNumber))
+}
+
+object DateMonthName {
+    fun getName(index: Int): String {
+        return AppContext.context.resources.getStringArray(R.array.months)[index]
+//        return AppContext.context.getString(index)
+    }
 }
 
 fun getCurrentDatetime(pattern: String = PRETTY): String {
@@ -121,4 +146,32 @@ fun Activity.startBrowser(url: String) {
     if (intent.resolveActivity(packageManager) != null) {
         startActivity(chooser)
     }
+}
+
+fun Activity.toast(message: String) {
+    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+}
+
+fun StandardAdapter<Source, SourceHolder>.clearSelected() {
+    forEach { it.isSubscribed = false }
+    notifyDataSetChanged()
+}
+
+val isInternetActive: Boolean
+    get() {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val activeNetwork = cm.activeNetworkInfo
+        val isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting
+
+        return isConnected
+    }
+
+fun showSimpleDialog(context: Context, title: String, message: String) {
+    val alertDialog = AlertDialog.Builder(context).create()
+    alertDialog.setTitle(title)
+    alertDialog.setMessage(message)
+    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+            DialogInterface.OnClickListener { dialog, which -> dialog.dismiss() })
+    alertDialog.show()
 }
